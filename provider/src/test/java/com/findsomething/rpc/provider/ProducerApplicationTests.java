@@ -1,4 +1,4 @@
-package com.findsomething.rpc.producer;
+package com.findsomething.rpc.provider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
