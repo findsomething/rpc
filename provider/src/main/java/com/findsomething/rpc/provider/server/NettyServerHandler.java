@@ -1,6 +1,7 @@
 package com.findsomething.rpc.provider.server;
 
 import com.alibaba.fastjson.JSON;
+import com.findsomething.rpc.common.constants.RpcConstant;
 import com.findsomething.rpc.common.entity.Request;
 import com.findsomething.rpc.common.entity.Response;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,8 +15,6 @@ import java.util.Map;
 
 /** @author link */
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
-
-    private final String PING = "ping";
 
     private final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private final Map<String, Object> serviceMap;
@@ -39,7 +38,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         // 1.解析接收消息
         Request request = JSON.parseObject(msg.toString(), Request.class);
 
-        if (PING.equals(request.getMethodName())) {
+        if (RpcConstant.PING.equals(request.getMethodName())) {
             logger.info("客户端心跳信息..." + ctx.channel().remoteAddress());
             return;
         }

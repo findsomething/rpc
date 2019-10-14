@@ -35,7 +35,10 @@ public class NettyServer implements ApplicationContextAware, InitializingBean {
     private Map<String, Object> serviceMap = new HashMap<>();
 
     @Value("${rpc.server.address}")
-    private String serviceAddress;
+    private String serverAddress;
+
+    @Value("${rpc.server.name}")
+    private String serverName;
 
     @Autowired private ServiceRegister registry;
 
@@ -90,12 +93,12 @@ public class NettyServer implements ApplicationContextAware, InitializingBean {
                                                         pipeline.addLast(handler);
                                                     }
                                                 });
-                                String[] array = serviceAddress.split(":");
+                                String[] array = serverAddress.split(":");
                                 String host = array[0];
                                 int port = Integer.parseInt(array[1]);
                                 ChannelFuture cf = bootstrap.bind(host, port).sync();
                                 logger.info("RPC 服务器启动.监听端口:" + port);
-                                registry.register(serviceAddress);
+                                registry.register(serverName, serverAddress);
                                 // 等待服务端监听端口关闭
                                 cf.channel().closeFuture().sync();
                             } catch (Exception e) {

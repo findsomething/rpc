@@ -1,5 +1,6 @@
 package com.findsomething.rpc.provider.server;
 
+import com.findsomething.rpc.common.constants.RpcConstant;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
@@ -17,39 +18,40 @@ public class ServiceRegister {
     @Value("${registry.address}")
     private String registryAddress;
 
-    private static final String ZK_REGISTRY_PATH = "/rpc";
-
-    public void register(String data) {
-        if (null == data) {
+    public void register(String serverName, String serverAddress) {
+        if (null == serverAddress) {
             return;
         }
         ZkClient client = connectServer();
         if (client != null) {
             addRootNode(client);
-            createNode(client, data);
+            createNode(client, serverName, serverAddress);
         }
     }
 
     private ZkClient connectServer() {
-        ZkClient client = new ZkClient(registryAddress, 20000, 20000);
-        return client;
+        return new ZkClient(registryAddress, 20000, 20000);
     }
 
     private void addRootNode(ZkClient client) {
-        boolean exists = client.exists(ZK_REGISTRY_PATH);
+        boolean exists = client.exists(getRpcServerPath());
         if (!exists) {
-            client.createPersistent(ZK_REGISTRY_PATH);
-            logger.info("创建zookeeper主节点 {}", ZK_REGISTRY_PATH);
+            client.createPersistent(getRpcServerPath());
+            logger.info("创建zookeeper主节点 {}", getRpcServerPath());
         }
     }
 
-    private void createNode(ZkClient client, String data) {
+    private void createNode(ZkClient client, String serverName, String serverAddress) {
         String path =
                 client.create(
-                        ZK_REGISTRY_PATH + "/provider",
-                        data,
+                        getRpcServerPath() + "/" + serverName,
+                        serverAddress,
                         ZooDefs.Ids.OPEN_ACL_UNSAFE,
                         CreateMode.EPHEMERAL_SEQUENTIAL);
-        logger.info("创建zookeeper数据节点 （{} => {})", path, data);
+        logger.info("创建zookeeper数据节点 （{} => {})", path, serverAddress);
+    }
+
+    private String getRpcServerPath() {
+        return RpcConstant.ZK_REGISTRY_PATH + "/provider";
     }
 }
