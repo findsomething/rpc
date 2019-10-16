@@ -18,14 +18,17 @@ public class ServiceRegister {
     @Value("${registry.address}")
     private String registryAddress;
 
+    private String serverPath;
+
     public void register(String serverName, String serverAddress) {
         if (null == serverAddress) {
             return;
         }
+        this.serverPath = RpcConstant.getServerPath(serverName);
         ZkClient client = connectServer();
         if (client != null) {
             addRootNode(client);
-            createNode(client, serverName, serverAddress);
+            createNode(client, serverAddress);
         }
     }
 
@@ -34,24 +37,20 @@ public class ServiceRegister {
     }
 
     private void addRootNode(ZkClient client) {
-        boolean exists = client.exists(getRpcServerPath());
+        boolean exists = client.exists(serverPath);
         if (!exists) {
-            client.createPersistent(getRpcServerPath());
-            logger.info("创建zookeeper主节点 {}", getRpcServerPath());
+            client.createPersistent(serverPath);
+            logger.info("创建zookeeper主节点 {}", serverPath);
         }
     }
 
-    private void createNode(ZkClient client, String serverName, String serverAddress) {
+    private void createNode(ZkClient client, String serverAddress) {
         String path =
                 client.create(
-                        getRpcServerPath() + "/" + serverName,
+                        this.serverPath + "/node",
                         serverAddress,
                         ZooDefs.Ids.OPEN_ACL_UNSAFE,
                         CreateMode.EPHEMERAL_SEQUENTIAL);
         logger.info("创建zookeeper数据节点 （{} => {})", path, serverAddress);
-    }
-
-    private String getRpcServerPath() {
-        return RpcConstant.ZK_REGISTRY_PATH + "/provider";
     }
 }

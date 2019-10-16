@@ -1,11 +1,13 @@
 package com.findsomething.rpc.common.constants;
 
-/**
- * @author link
- */
+/** @author link */
 public class RpcConstant {
 
-    public final static String PING = "ping";
+    public static final String PING = "ping";
 
-    public final static String ZK_REGISTRY_PATH = "/rpc";
+    public static final String ZK_REGISTRY_PATH = "/rpc/provider";
+
+    public static String getServerPath(String serverName) {
+        return String.format("%s/%s", ZK_REGISTRY_PATH, serverName);
+    }
 }
